@@ -27,7 +27,7 @@ public class Role {
             @JoinColumn(name = "userId")
     })
     private List<User> users = Lists.newArrayList();
-    @ManyToMany(cascade = {
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {
             CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "t_role_permission", joinColumns = {
             @JoinColumn(name = "roleId")

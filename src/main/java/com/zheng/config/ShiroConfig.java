@@ -32,6 +32,7 @@ public class ShiroConfig {
         Map<String, String> chains = Maps.newLinkedHashMap();
         // logout已经实现了
         chains.put("/logout", "logout");
+//        chains.put("/user/list", "authc, roles[admin]");
         chains.put("/**", "authc");
         bean.setLoginUrl("/login");
         bean.setSuccessUrl("/index");
