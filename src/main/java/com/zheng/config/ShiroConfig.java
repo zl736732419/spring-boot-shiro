@@ -1,7 +1,10 @@
 package com.zheng.config;
 
 import com.google.common.collect.Maps;
+import com.zheng.filters.JcaptchaValidateFilter;
+import com.zheng.filters.MyFormAuthenticationFilter;
 import com.zheng.realms.MyUserRealm;
+import com.zheng.utils.SpringUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -13,6 +16,7 @@ import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
 import java.util.Map;
 
 /**
@@ -32,21 +36,35 @@ public class ShiroConfig {
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
         bean.setSecurityManager(manager);
 
+        bean.getFilters().put("jcaptchaValidate", jcaptchaValidateFilter());
+        bean.getFilters().put("authc", myFormAuthenticationFilter());
+
         Map<String, String> chains = Maps.newLinkedHashMap();
+//      chains.put("/user/list", "authc, roles[admin]");
+        chains.put("/", "user");
+        chains.put("/**", "authc");
+
         // logout已经实现了
         chains.put("/logout", "logout");
-//        chains.put("/user/list", "authc, roles[admin]");
-
         //添加记住我过滤器
         chains.put("/index", "user");
-        chains.put("/", "user");
-
-        chains.put("/**", "authc");
+        chains.put("/captcha", "anon");
+        chains.put("/login", "jcaptchaValidate, authc");
         bean.setLoginUrl("/login");
         bean.setSuccessUrl("/index");
         bean.setUnauthorizedUrl("/403");
         bean.setFilterChainDefinitionMap(chains);
         return bean;
+    }
+
+    @Bean
+    public JcaptchaValidateFilter jcaptchaValidateFilter() {
+        return new JcaptchaValidateFilter();
+    }
+
+    @Bean
+    public MyFormAuthenticationFilter myFormAuthenticationFilter() {
+        return new MyFormAuthenticationFilter();
     }
 
     @Bean
