@@ -3,6 +3,7 @@ package com.zheng.config;
 import com.google.common.collect.Maps;
 import com.zheng.realms.MyUserRealm;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -44,7 +45,8 @@ public class ShiroConfig {
     @Bean
     public SecurityManager securityManager() {
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
-        manager.setRealm(myUserRealm());
+        manager.setRealm(myUserRealm()); //注入自定义realm实现
+        manager.setCacheManager(ehCacheManager()); //注入ehcacheManager实现缓存机制
         return manager;
     }
 
@@ -74,5 +76,13 @@ public class ShiroConfig {
         advisor.setSecurityManager(manager);
         return advisor;
     }
+
+    @Bean
+    public EhCacheManager ehCacheManager() {
+        EhCacheManager manager = new EhCacheManager();
+        manager.setCacheManagerConfigFile("classpath:shiro-ehcache.xml");
+        return manager;
+    }
+
 
 }

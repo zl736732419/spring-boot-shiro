@@ -26,6 +26,7 @@ public class MyUserRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection pc) {
+        System.out.println("权限认证=====> doGetAuthorizationInfo");
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         String username = (String) pc.getPrimaryPrincipal();
         User user = userService.findByUsername(username);
@@ -54,6 +55,7 @@ public class MyUserRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        System.out.println("身份认证==========>doGetAuthenticationInfo");
         String username = (String) token.getPrincipal();
         User user = userService.findByUsername(username);
         if (user == null) {
