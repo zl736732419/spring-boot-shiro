@@ -7,7 +7,9 @@ import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,6 +36,11 @@ public class ShiroConfig {
         // logout已经实现了
         chains.put("/logout", "logout");
 //        chains.put("/user/list", "authc, roles[admin]");
+
+        //添加记住我过滤器
+        chains.put("/index", "user");
+        chains.put("/", "user");
+
         chains.put("/**", "authc");
         bean.setLoginUrl("/login");
         bean.setSuccessUrl("/index");
@@ -47,6 +54,7 @@ public class ShiroConfig {
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
         manager.setRealm(myUserRealm()); //注入自定义realm实现
         manager.setCacheManager(ehCacheManager()); //注入ehcacheManager实现缓存机制
+        manager.setRememberMeManager(cookieRememberMeManager()); //设置记住密码
         return manager;
     }
 
@@ -83,6 +91,31 @@ public class ShiroConfig {
         manager.setCacheManagerConfigFile("classpath:shiro-ehcache.xml");
         return manager;
     }
+
+    /**
+     * 记住密码
+     * @return
+     */
+    @Bean
+    public SimpleCookie rememberMeCookie() {
+        SimpleCookie cookie = new SimpleCookie("rememberMe");
+        //设置30天失效
+        cookie.setMaxAge(259200);
+
+        return cookie;
+    }
+
+    /**
+     * 设置记住我cookie管理对象
+     * @return
+     */
+    @Bean
+    public CookieRememberMeManager cookieRememberMeManager() {
+        CookieRememberMeManager manager = new CookieRememberMeManager();
+        manager.setCookie(rememberMeCookie());
+        return manager;
+    }
+
 
 
 }
