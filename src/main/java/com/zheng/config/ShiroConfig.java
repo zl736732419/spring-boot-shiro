@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.servlet.Filter;
 
+import com.zheng.credentials.RetryLimitedHashedCredentialsMatcher;
 import com.zheng.filters.SysUserFilter;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
@@ -96,7 +97,8 @@ public class ShiroConfig {
     @Bean
     public MyUserRealm myUserRealm() {
         MyUserRealm realm = new MyUserRealm();
-        realm.setCredentialsMatcher(hashedCredentialsMatcher());
+//        realm.setCredentialsMatcher(hashedCredentialsMatcher());
+        realm.setCredentialsMatcher(retryLimitedHashedCredentialsMatcher());
         return realm;
     }
 
@@ -105,6 +107,22 @@ public class ShiroConfig {
         HashedCredentialsMatcher matcher = new HashedCredentialsMatcher();
         matcher.setHashAlgorithmName("md5");
         matcher.setHashIterations(2);
+        return matcher;
+    }
+
+
+    /**
+     * 密码登录次数限制
+     * @param manager
+     * @return
+     */
+    @Bean
+    public RetryLimitedHashedCredentialsMatcher retryLimitedHashedCredentialsMatcher() {
+        RetryLimitedHashedCredentialsMatcher matcher = new RetryLimitedHashedCredentialsMatcher(ehCacheManager());
+        matcher.setHashAlgorithmName("md5");
+        matcher.setHashIterations(2);
+        matcher.setStoredCredentialsHexEncoded(true);
+
         return matcher;
     }
 
@@ -136,6 +154,7 @@ public class ShiroConfig {
         SimpleCookie cookie = new SimpleCookie("rememberMe");
         //设置30天失效
         cookie.setMaxAge(259200);
+        cookie.setHttpOnly(true);
 
         return cookie;
     }
@@ -150,7 +169,5 @@ public class ShiroConfig {
         manager.setCookie(rememberMeCookie());
         return manager;
     }
-
-
 
 }
