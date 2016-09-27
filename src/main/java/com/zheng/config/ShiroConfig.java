@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.servlet.Filter;
 
+import com.zheng.filters.SysUserFilter;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -44,8 +45,9 @@ public class ShiroConfig {
         	bean.getFilters().put(filter.name(), (Filter) ClassUtils.newInstance(filter.getFilterClass()));
         }
                 
-        bean.getFilters().put("jcaptchaValidate", jcaptchaValidateFilter());
-        bean.getFilters().put("myAuthc", myFormAuthenticationFilter());
+        bean.getFilters().put("jcaptchaValidate", jcaptchaValidateFilter()); //登录验证码验证
+        bean.getFilters().put("myAuthc", myFormAuthenticationFilter()); //进行用户身份认证
+        bean.getFilters().put("sysUser", sysUserFilter()); //获取登录用户信息
 
         Map<String, String> chains = Maps.newLinkedHashMap();
 //      chains.put("/user/list", "authc, roles[admin]");
@@ -55,11 +57,10 @@ public class ShiroConfig {
         chains.put("/captcha", "anon");
         
         //添加记住我过滤器
-        chains.put("/index", "user");
         chains.put("/login", "jcaptchaValidate, myAuthc");
 
-        chains.put("/", "user");
-        chains.put("/**", "user");
+        chains.put("/", "user, sysUser");
+        chains.put("/**", "user, sysUser");
 
         bean.setLoginUrl("/login");
         bean.setSuccessUrl("/index");
@@ -76,6 +77,11 @@ public class ShiroConfig {
     @Bean
     public MyFormAuthenticationFilter myFormAuthenticationFilter() {
         return new MyFormAuthenticationFilter();
+    }
+
+    @Bean
+    public SysUserFilter sysUserFilter() {
+        return new SysUserFilter();
     }
 
     @Bean
