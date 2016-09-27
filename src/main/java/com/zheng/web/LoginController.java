@@ -1,7 +1,11 @@
 package com.zheng.web;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.ExcessiveAttemptsException;
+import org.apache.shiro.authc.ExpiredCredentialsException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,7 +37,7 @@ public class LoginController extends BaseController {
             }else if(shiroLoginFailure.equals(ExpiredCredentialsException.class.getName())) {
                 error = "密码已失效!";
             }else {
-                error = "遇到错误!";
+                error = "错误：" + shiroLoginFailure;
             }
         }
 

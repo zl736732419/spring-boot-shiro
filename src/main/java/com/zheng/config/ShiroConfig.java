@@ -1,23 +1,26 @@
 package com.zheng.config;
 
-import com.google.common.collect.Maps;
-import com.zheng.filters.JcaptchaValidateFilter;
-import com.zheng.filters.MyFormAuthenticationFilter;
-import com.zheng.realms.MyUserRealm;
-import com.zheng.utils.SpringUtils;
+import java.util.Map;
+
+import javax.servlet.Filter;
+
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.util.ClassUtils;
+import org.apache.shiro.web.filter.mgt.DefaultFilter;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.servlet.Filter;
-import java.util.Map;
+import com.google.common.collect.Maps;
+import com.zheng.filters.JcaptchaValidateFilter;
+import com.zheng.filters.MyFormAuthenticationFilter;
+import com.zheng.realms.MyUserRealm;
 
 /**
  * 添加shiro支持
@@ -35,21 +38,29 @@ public class ShiroConfig {
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager manager) {
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
         bean.setSecurityManager(manager);
-
+        
+        //这里注册默认的拦截器链如authc, anon, ssl 等
+        for(DefaultFilter filter : DefaultFilter.values()) {
+        	bean.getFilters().put(filter.name(), (Filter) ClassUtils.newInstance(filter.getFilterClass()));
+        }
+                
         bean.getFilters().put("jcaptchaValidate", jcaptchaValidateFilter());
-        bean.getFilters().put("authc", myFormAuthenticationFilter());
+        bean.getFilters().put("myAuthc", myFormAuthenticationFilter());
 
         Map<String, String> chains = Maps.newLinkedHashMap();
 //      chains.put("/user/list", "authc, roles[admin]");
-        chains.put("/", "user");
-        chains.put("/**", "authc");
 
         // logout已经实现了
         chains.put("/logout", "logout");
+        chains.put("/captcha", "anon");
+        
         //添加记住我过滤器
         chains.put("/index", "user");
-        chains.put("/captcha", "anon");
-        chains.put("/login", "jcaptchaValidate, authc");
+        chains.put("/login", "jcaptchaValidate, myAuthc");
+
+        chains.put("/", "user");
+        chains.put("/**", "user");
+
         bean.setLoginUrl("/login");
         bean.setSuccessUrl("/index");
         bean.setUnauthorizedUrl("/403");

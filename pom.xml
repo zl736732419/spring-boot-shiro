@@ -174,7 +174,6 @@
                     <fork>true</fork>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -184,6 +183,10 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+            <plugin>
+			    <groupId>org.apache.maven.plugins</groupId>  
+			    <artifactId>maven-javadoc-plugin</artifactId>  
+			</plugin>
         </plugins>
 
     </build>
@@ -211,7 +214,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-
     </repositories>
 
     <pluginRepositories>

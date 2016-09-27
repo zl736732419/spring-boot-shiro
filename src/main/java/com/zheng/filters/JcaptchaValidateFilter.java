@@ -1,14 +1,14 @@
 package com.zheng.filters;
 
-import com.octo.captcha.service.image.ImageCaptchaService;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
+import com.octo.captcha.service.image.ImageCaptchaService;
 
 /**
  * 定义jcaptcha验证过滤器
@@ -43,12 +43,18 @@ public class JcaptchaValidateFilter extends AccessControlFilter {
         HttpServletRequest request = WebUtils.toHttp(servletRequest);
         request.setAttribute("jcaptchaEnable", this.jcaptchaEnable);
 
-        if(!this.jcaptchaEnable || !"post".equals(request.getMethod())) { //如果没有开启验证或者不是post提交就不需要验证码验证，直接跳过
+        if(!this.jcaptchaEnable || !"post".equals(request.getMethod().toLowerCase())) { //如果没有开启验证或者不是post提交就不需要验证码验证，直接跳过
             return true;
         }
         String captcha = request.getParameter(jcaptchaParam);
+        boolean result = false;
+        try {
+			result = captchaService.validateResponseForID(request.getSession().getId(), captcha);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        return captchaService.validateResponseForID(request.getSession().getId(), captcha);
+        return result;
 
     }
 
