@@ -1,9 +1,11 @@
 package com.zheng.repository;
 
-import com.zheng.domain.User;
+import java.io.Serializable;
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
-import java.io.Serializable;
+import com.zheng.domain.User;
 
 /**
  * Created by zhenglian on 2016/9/24.

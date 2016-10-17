@@ -1,5 +1,6 @@
 package com.zheng.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.collect.Lists;
 import com.zheng.enums.UserState;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -30,6 +31,7 @@ public class User implements Serializable {
      */
     private Integer state = UserState.STATE_UNACTIVE.getState();
 
+    @JSONField(serialize = false) //不输出User
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private List<Role> roles = Lists.newArrayList();
